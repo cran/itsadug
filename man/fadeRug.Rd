@@ -47,9 +47,9 @@ Add a transparency Rug to a contour plot or image.
 }
 \section{Warning}{
 
-On Linux \code{\link{x11}} devices may not support transparency. 
+On Linux \code{\link[grDevices]{x11}} devices may not support transparency. 
 In that case, a solution might be to write the plots immediately to a file 
-using functions such as \code{\link{pdf}}, or \code{\link{png}}.
+using functions such as \code{\link[grDevices]{pdf}}, or \code{\link[grDevices]{png}}.
 }
 
 \examples{

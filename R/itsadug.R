@@ -93,11 +93,14 @@
 #' @author
 #' Jacolien van Rij, Martijn Wieling, R.Harald Baayen, Hedderik van Rijn
 #'
-#' Maintainer: Jacolien van Rij (\email{vanrij.jacolien@gmail.com})
+#' Maintainer: Jacolien van Rij (\email{j.c.van.rij@rug.nl})
 #'
 #' University of Groningen, The Netherlands
-#' @docType package
-#' @name itsadug
+#' @keywords internal
+"_PACKAGE"
+
+## usethis namespace: start
+## usethis namespace: end
 NULL
 
 
@@ -144,7 +147,7 @@ infoMessages <- function(input) {
         options(itsadug_print = TRUE)
     }
     if (getOption("itsadug_print")) {
-        packageStartupMessage("Loaded package itsadug 2.4 (see 'help(\"itsadug\")' ).")
+        packageStartupMessage("Loaded package itsadug 2.5 (see 'help(\"itsadug\")' ).")
     }
 }
 

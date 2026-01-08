@@ -46,9 +46,9 @@ The degrees of freedom of the model terms are the sum of
 2) number of parametric (non-smooth) model terms including the intercept, 
 and 3) the sum of the penalty null space dimensions of each smooth object.
 
-This method is preferred over other functions such as \code{\link{AIC}} for 
+This method is preferred over other functions such as \code{\link[stats]{AIC}} for 
 models that include an AR1 model or random effects (especially nonlinear 
-random smooths using \code{bs='fs'}). CompareML also reports the AIC 
+random smooths using \code{bs='fs'}). compareML also reports the AIC 
 difference, but that value should be treated with care.
 
 Note that the Chi-Square test will result in a very low p-value
@@ -58,7 +58,9 @@ A warning is presented when the difference in score is smaller
 than 5.
 
 The order of the two models is not important.
-Model comparison is only implemented for the methods GCV, fREML, REML, and ML.
+Model comparison is only implemented for the methods fREML, REML, and ML,
+for other models the log-likelihood is being used (function 
+\code{\link[mgcv]{logLik.gam}}).
 }
 \section{Notes}{
 
@@ -74,14 +76,21 @@ data(simdat)
 \dontrun{
 infoMessages('on')
 # some arbitrary models:
-m1 <- bam(Y~Group + s(Time, by=Group), method='fREML', data=simdat)
-m2 <- bam(Y~Group + s(Time), method='fREML', data=simdat)
+m1 <- bam(Y~Group + s(Time, by=Group), method='ML', data=simdat)
+m2 <- bam(Y~Group + s(Time), method='ML', data=simdat)
+
+compareML(m1, m2)
+
+# same models, but now with fREML (default):
+m1 <- bam(Y~Group + s(Time, by=Group), data=simdat)
+m2 <- bam(Y~Group + s(Time), data=simdat)
 
 compareML(m1, m2)
 
 # exclude significance stars:
 compareML(m1, m2, signif.stars=FALSE)
 
+# same model as m1, increased k:
 m3 <- bam(Y~Group + s(Time, by=Group, k=25), method='fREML', 
     data=simdat)
 compareML(m1, m3)
@@ -96,11 +105,11 @@ suppressWarnings(cml <- compareML(m1, m2, print.output=FALSE)$table)
 }
 }
 \seealso{
-For models without AR1 model or random effects \code{\link{AIC}} can be used.
+For models without AR1 model or random effects \code{\link[stats]{AIC}} can be used.
 
 Other Testing for significance: 
-\code{\link{plot_diff2}()},
 \code{\link{plot_diff}()},
+\code{\link{plot_diff2}()},
 \code{\link{report_stats}()},
 \code{\link{wald_gam}()}
 }

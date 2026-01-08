@@ -27,9 +27,9 @@
 #' @author Jacolien van Rij, based on Simon N. Wood's 
 #' \code{\link[mgcv]{exclude.too.far}}
 #' @section Warning:
-#' On Linux \code{\link{x11}} devices may not support transparency. 
+#' On Linux \code{\link[grDevices]{x11}} devices may not support transparency. 
 #' In that case, a solution might be to write the plots immediately to a file 
-#' using functions such as \code{\link{pdf}}, or \code{\link{png}}.
+#' using functions such as \code{\link[grDevices]{pdf}}, or \code{\link[grDevices]{png}}.
 #' @seealso 
 #' \code{\link[graphics]{rug}}, \code{\link[graphics]{contour}}, 
 #' \code{\link[graphics]{image}}

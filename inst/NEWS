@@ -1,3 +1,10 @@
+# itsadug 2.5
+
+- get_predictions: New argument newdata, which accepts a data frame with (a part of) the predictors to generate predictions for.
+- compareML: adjusted calculation for models' degrees of freedom with (f)REML scores and other methods, no change when using compareML with ML scores.
+- fvisgam and pvisgam: changes in calculation of range zlim with dec=-1.
+- fixed issues with Rd cross-references checks.
+
 # itsadug 2.4.1
 
 -> bug fix in documentation compareML (\eqn with missing argument)

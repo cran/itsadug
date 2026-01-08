@@ -38,7 +38,7 @@ Generally, there are three methods to test whether a certain predictor or intera
 
 
 ## Example
-<div class="example">
+
 Loading the data:
 
 ```{r}
@@ -63,23 +63,42 @@ For this simulated data set, we would like to investigate whether children and a
 If we would like to employ a backward-fitting model comparison procedure we could start with a model like this:
 
 ```{r}
-m1 <- bam(Y ~ Group + s(Time, by=Group) + s(Condition, by=Group, k=5) + ti(Time, Condition, by=Group) + s(Time, Subject, bs='fs', m=1, k=5) + s(Event, bs='re'), data=simdat, discrete=TRUE, method="fREML")
+m1 <- bam(Y ~ Group + s(Time, by=Group) 
+          + s(Condition, by=Group, k=5) 
+          + ti(Time, Condition, by=Group) 
+          + s(Time, Subject, bs='fs', m=1, k=5) 
+          + s(Event, bs='re'), 
+          data=simdat, discrete=TRUE, method="fREML")
 ```
 
-**Note** that to keep the model simple for illustration purposes / time reasons, we left out other effects, such as `Trial`, and random smooths over `Event`. instead, we account for autocorrelation in the residuals due to the underfit of the model by including an AR1 model. See `vignette("acf", package"itsadug")` for more information.
+**Note** that to keep the model simple for illustration purposes / time reasons, we left out other effects, such as `Trial`, and random smooths over `Event`. Instead, we account for autocorrelation in the residuals due to the underfit of the model by including an AR1 model. See `vignette("acf", package"itsadug")` for more information. 
 
 ```{r}
 r1 <- start_value_rho(m1)
-m1Rho <- bam(Y ~ Group + s(Time, by=Group) + s(Condition, by=Group, k=5) + ti(Time, Condition, by=Group) + s(Time, Subject, bs='fs', m=1, k=5) + s(Event, bs='re'), data=simdat, method="fREML", AR.start=simdat$start.event, rho=r1)
+m1Rho <- bam(Y ~ Group + s(Time, by=Group) 
+             + s(Condition, by=Group, k=5) 
+             + ti(Time, Condition, by=Group) 
+             + s(Time, Subject, bs='fs', m=1, k=5) 
+             + s(Event, bs='re'), 
+             data=simdat, method="fREML", 
+             AR.start=simdat$start.event, rho=r1)
 ```
 
 
 ## 1. Model comparison
 
+**Note** that we would like to run these models with method ML for comparing fixed effects. As the package checks will take too long for this vignette we included here a comparison with method fREML -- which not ideal.
+
 To test whether the three-way interaction between `Time`, `Condition` and `Group` is significant, we can compare the model with a model that does not include this three-way interaction:
 
 ```{r}
-m2Rho <- bam(Y ~ Group + s(Time, by=Group) + s(Condition, by=Group, k=5) + ti(Time, Condition) + s(Time, Subject, bs='fs', m=1, k=5) + s(Event, bs='re'), data=simdat, method="fREML", AR.start=simdat$start.event, rho=r1)
+m2Rho <- bam(Y ~ Group + s(Time, by=Group) 
+             + s(Condition, by=Group, k=5) 
+             + ti(Time, Condition) 
+             + s(Time, Subject, bs='fs', m=1, k=5) 
+             + s(Event, bs='re'), 
+             data=simdat, method="fREML", 
+             AR.start=simdat$start.event, rho=r1)
 ```
 
 
@@ -157,7 +176,14 @@ contrasts(simdat$OFGroup)
 **Note** that in the case of using *ordered factors* we need to include the reference curves or surfaces as well. 
 
 ```{r}
-m1Rho.OF <- bam(Y ~ OFGroup + s(Time) + s(Time, by=OFGroup) + s(Condition, k=5) + s(Condition, by=OFGroup, k=5) + ti(Time, Condition) + ti(Time, Condition, by=OFGroup) + s(Time, Subject, bs='fs', m=1, k=5) + s(Event, bs='re'), data=simdat, method="fREML", AR.start=simdat$start.event, rho=r1)
+m1Rho.OF <- bam(Y ~ OFGroup 
+                + s(Time) + s(Time, by=OFGroup) 
+                + s(Condition, k=5) + s(Condition, by=OFGroup, k=5) 
+                + ti(Time, Condition) + ti(Time, Condition, by=OFGroup) 
+                + s(Time, Subject, bs='fs', m=1, k=5) 
+                + s(Event, bs='re'), 
+                data=simdat, method="fREML", 
+                AR.start=simdat$start.event, rho=r1)
 ```
 
 With the ordered factors suddenly the lines `s(Time):OFGroupAdults` and similar lines represent the *difference* between the adults and the reference group, the children. When the smooth term is significant, the difference smooth is is significantly different from zero. So that means that the two groups are different from each other: 
@@ -187,16 +213,32 @@ The plots below visualize the difference between adults and children.
 par(mfrow=c(1,2))
 
 # PLOT 1:
-plot_diff(m1Rho, view="Time", comp=list(Group=c("Adults", "Children")), cond=list(Condition=1), rm.ranef=TRUE, ylim=c(-15,15))
-plot_diff(m1Rho, view="Time", comp=list(Group=c("Adults", "Children")),  cond=list(Condition=4), add=TRUE, col='red')
+plot_diff(m1Rho, view="Time", 
+          comp=list(Group=c("Adults", "Children")), 
+          cond=list(Condition=1), 
+          rm.ranef=TRUE, ylim=c(-15,15))
+plot_diff(m1Rho, view="Time", 
+          comp=list(Group=c("Adults", "Children")),  
+          cond=list(Condition=4), 
+          add=TRUE, col='red')
 # add legend:
-legend('bottom', legend=c("Condition=1", "Condition=4"), col=c(1,2), lwd=1, cex=.75, bty='n')
+legend('bottom', 
+       legend=c("Condition=1", "Condition=4"), 
+       col=c(1,2), lwd=1, cex=.75, bty='n')
 
 # PLOT 2:
-plot_diff(m1Rho, view="Condition", comp=list(Group=c("Adults", "Children")), cond=list(Time=1000), rm.ranef=TRUE, ylim=c(-15,15))
-plot_diff(m1Rho, view="Condition", comp=list(Group=c("Adults", "Children")),  cond=list(Time=2000), add=TRUE, col='red')
+plot_diff(m1Rho, view="Condition", 
+          comp=list(Group=c("Adults", "Children")), 
+          cond=list(Time=1000), 
+          rm.ranef=TRUE, ylim=c(-15,15))
+plot_diff(m1Rho, view="Condition", 
+          comp=list(Group=c("Adults", "Children")),  
+          cond=list(Time=2000), 
+          add=TRUE, col='red')
 # add legend:
-legend('bottom', legend=c("Time=1000", "Time=2000"), col=c(1,2), lwd=1, cex=.75, bty='n')
+legend('bottom', 
+       legend=c("Time=1000", "Time=2000"), 
+       col=c(1,2), lwd=1, cex=.75, bty='n')
 ```
 
 
@@ -208,9 +250,14 @@ The plots below visualize the difference between adults and children.
 
 ```{r, fig.width=8, fig.height=4}
 par(mfrow=c(1,2), cex=1.1)
-plot_diff2(m1Rho, view=c("Time", "Condition"), comp=list(Group=c("Adults", "Children")), zlim=c(-15,15), se=0, rm.ranef=TRUE)
+plot_diff2(m1Rho, view=c("Time", "Condition"), 
+           comp=list(Group=c("Adults", "Children")), 
+           zlim=c(-15,15), se=0, rm.ranef=TRUE)
 
 # with CI:
-plot_diff2(m1Rho, view=c("Time", "Condition"), comp=list(Group=c("Adults", "Children")), zlim=c(-15,15), se=1.96, rm.ranef=TRUE, show.diff = TRUE)
+plot_diff2(m1Rho, view=c("Time", "Condition"), 
+           comp=list(Group=c("Adults", "Children")), 
+           zlim=c(-15,15), se=1.96, rm.ranef=TRUE, 
+           show.diff = TRUE)
 ```
 

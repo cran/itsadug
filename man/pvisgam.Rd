@@ -67,7 +67,7 @@ can be provided for a custom color palette (see examples).}
 
 \item{add.color.legend}{Logical: whether or not to add a color legend. 
 Default is TRUE. If FALSE (omitted), one could use the function
-\code{\link{gradientLegend}} to add a legend manually at any position.}
+\code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.}
 
 \item{se}{If less than or equal to zero then only the predicted surface is 
 plotted, but if greater than zero, then 3 surfaces are plotted, one at the 
@@ -106,9 +106,7 @@ Defaults to FALSE.}
 \item{alpha.diff}{Level of transparency to mark the nonsignificant areas.}
 
 \item{dec}{Numeric: number of decimals for rounding the color legend. 
-When NULL (default), no rounding. If -1 the values are automatically determined. 
-Note: if value = -1 (default), rounding will be applied also when 
-\code{zlim} is provided.}
+When NULL (default), no rounding.}
 
 \item{f}{Scaling factor to determine the CI from the se, for marking the 
 difference with 0. Only applies when \code{se} is smaller or equal to zero 

@@ -619,6 +619,9 @@ get_modelterm <- function(model, select, cond = NULL, n.grid = 30, se = TRUE, f 
 #' @param cond A named list of the values to use for the predictor terms. 
 #' Variables omitted from this list will have the closest observed value to 
 #' the median for continuous variables, or the reference level for factors. 
+#' @param newdata Data frame with conditions to generate predictions for. 
+#' If a data frame is provided, the information in argument \code{cond} is 
+#' ignored.
 #' @param rm.ranef Logical: whether or not to remove random effects. 
 #' Default is TRUE. Alternatively a vector with numbers (modelterms) 
 #' of the random effect(s) to remove.
@@ -692,10 +695,10 @@ get_modelterm <- function(model, select, cond = NULL, n.grid = 30, se = TRUE, f 
 #'
 #' @author Jacolien van Rij
 #' @family Model predictions
-get_predictions <- function(model, cond = NULL, rm.ranef = TRUE, se = TRUE, sim.ci = FALSE, f = 1.96, return.n.posterior = 0, 
+get_predictions <- function(model, cond = NULL, newdata = NULL, rm.ranef = TRUE, se = TRUE, sim.ci = FALSE, f = 1.96, return.n.posterior = 0, 
     print.summary = getOption("itsadug_print")) {
-    if (is.null(cond)) {
-        stop("Please specify values for at least one predictor in the parameter 'cond'.")
+    if (is.null(cond) & is.null(newdata)) {
+        stop("Please specify values for at least one predictor with the argument 'cond', or a data frame with the argument 'newdata'.")
     }
     if (! inherits(model, "gam")) {
         stop("This function does not work for class %s models.", class(model)[1])
@@ -709,19 +712,33 @@ get_predictions <- function(model, cond = NULL, rm.ranef = TRUE, se = TRUE, sim.
         }
         newd <- NULL
         su <- model$var.summary
-        new.cond <- list()
-        for (i in names(su)) {
-            if (i %in% names(cond)) {
-                new.cond[[i]] <- cond[[i]]
-            } else {
+        if(!is.null(newdata)){
+            newd <- newdata
+            if(!inherits(newdata, "data.frame")){
+                warning("Argument 'newdata' expects a data frame.")
+            }
+            for (i in names(su)[!names(su) %in% colnames(newdata)]) {
                 if (inherits(su[[i]], "factor")) {
-                  new.cond[[i]] <- as.character(su[[i]][1])
+                  newd[,i] <- as.character(su[[i]][1])
                 } else if (inherits(su[[i]], "numeric")) {
-                  new.cond[[i]] <- su[[i]][2]
+                  newd[,i] <- su[[i]][2]
                 }
             }
+        }else{
+            new.cond <- list()
+            for (i in names(su)) {
+                if (i %in% names(cond)) {
+                    new.cond[[i]] <- cond[[i]]
+                } else {
+                    if (inherits(su[[i]], "factor")) {
+                      new.cond[[i]] <- as.character(su[[i]][1])
+                    } else if (inherits(su[[i]], "numeric")) {
+                      new.cond[[i]] <- su[[i]][2]
+                    }
+                }
+            }
+            newd <- expand.grid(new.cond, stringsAsFactors = TRUE)
         }
-        newd <- expand.grid(new.cond, stringsAsFactors = TRUE)
         mysummary <- summary_data(newd, print = FALSE)
         p <- mgcv::predict.gam(model, newd, type = "lpmatrix")
         if (!is.null(rm.ranef)) {

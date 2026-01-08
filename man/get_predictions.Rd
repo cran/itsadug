@@ -7,6 +7,7 @@
 get_predictions(
   model,
   cond = NULL,
+  newdata = NULL,
   rm.ranef = TRUE,
   se = TRUE,
   sim.ci = FALSE,
@@ -22,6 +23,10 @@ get_predictions(
 \item{cond}{A named list of the values to use for the predictor terms. 
 Variables omitted from this list will have the closest observed value to 
 the median for continuous variables, or the reference level for factors.}
+
+\item{newdata}{Data frame with conditions to generate predictions for. 
+If a data frame is provided, the information in argument \code{cond} is 
+ignored.}
 
 \item{rm.ranef}{Logical: whether or not to remove random effects. 
 Default is TRUE. Alternatively a vector with numbers (modelterms) 

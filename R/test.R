@@ -26,9 +26,9 @@
 #' 2) number of parametric (non-smooth) model terms including the intercept, 
 #' and 3) the sum of the penalty null space dimensions of each smooth object.
 #'
-#' This method is preferred over other functions such as \code{\link{AIC}} for 
+#' This method is preferred over other functions such as \code{\link[stats]{AIC}} for 
 #' models that include an AR1 model or random effects (especially nonlinear 
-#' random smooths using \code{bs='fs'}). CompareML also reports the AIC 
+#' random smooths using \code{bs='fs'}). compareML also reports the AIC 
 #' difference, but that value should be treated with care.
 #' 
 #' Note that the Chi-Square test will result in a very low p-value
@@ -38,7 +38,9 @@
 #' than 5.
 #'
 #' The order of the two models is not important.
-#' Model comparison is only implemented for the methods GCV, fREML, REML, and ML.
+#' Model comparison is only implemented for the methods fREML, REML, and ML,
+#' for other models the log-likelihood is being used (function 
+#' \code{\link[mgcv]{logLik.gam}}).
 #'
 #' @section Notes:
 #' For suppressing the output and all warnings, set infoMessages to FALSE 
@@ -47,21 +49,28 @@
 #' \code{\link{suppressWarnings}} to suppress warning messages.
 #' @return Optionally returns the Chi-Square test table.
 #' @author Jacolien van Rij. With many thanks to Simon N. Wood for his feedback.
-#' @seealso For models without AR1 model or random effects \code{\link{AIC}} can be used.
+#' @seealso For models without AR1 model or random effects \code{\link[stats]{AIC}} can be used.
 #' @examples
 #' data(simdat)
 #'
 #' \dontrun{
 #' infoMessages('on')
 #' # some arbitrary models:
-#' m1 <- bam(Y~Group + s(Time, by=Group), method='fREML', data=simdat)
-#' m2 <- bam(Y~Group + s(Time), method='fREML', data=simdat)
+#' m1 <- bam(Y~Group + s(Time, by=Group), method='ML', data=simdat)
+#' m2 <- bam(Y~Group + s(Time), method='ML', data=simdat)
+#' 
+#' compareML(m1, m2)
+#' 
+#' # same models, but now with fREML (default):
+#' m1 <- bam(Y~Group + s(Time, by=Group), data=simdat)
+#' m2 <- bam(Y~Group + s(Time), data=simdat)
 #' 
 #' compareML(m1, m2)
 #'
 #' # exclude significance stars:
 #' compareML(m1, m2, signif.stars=FALSE)
 #'
+#' # same model as m1, increased k:
 #' m3 <- bam(Y~Group + s(Time, by=Group, k=25), method='fREML', 
 #'     data=simdat)
 #' compareML(m1, m3)
@@ -88,41 +97,99 @@ compareML <- function(model1, model2, signif.stars = TRUE, suggest.report = FALS
     
     
     type <- model1$method
+    ml1 <- NA
+    ml2 <- NA 
+    ndf1 <- NA
+    ndf2 <- NA 
     
-    ml1 <- model1$gcv.ubre[1]
-    ml2 <- model2$gcv.ubre[1]
-    
-    ### OLD METHOD, SIMON SAYS NOT OK! ### edf1 <- sum(model1$edf) edf2 <- sum(model2$edf) NEW METHOD: ###
-    ndf1 <- length(model1$sp) + model1$nsdf + ifelse(length(model1$smooth) > 0, sum(sapply(model1$smooth, 
-        FUN = function(x) {
-            x$null.space.dim
-        }, USE.NAMES = FALSE)), 0)
-    ndf2 <- length(model2$sp) + model2$nsdf + ifelse(length(model2$smooth) > 0, sum(sapply(model2$smooth, 
-        FUN = function(x) {
-            x$null.space.dim
-        }, USE.NAMES = FALSE)), 0)
-    
-    if (!model1$method %in% c("fREML", "REML", "ML")) {
-        type <- "AIC"
-        ml1 <- AIC(model1)
-        ml2 <- AIC(model2)
-        
-        ndf1 <- length(model1$sp) + model1$nsdf + ifelse(length(model1$smooth) > 0, sum(sapply(model1$smooth, 
-            FUN = function(x) {
-                x$null.space.dim
-            }, USE.NAMES = FALSE)), 0)
-        ndf2 <- length(model2$sp) + model2$nsdf + ifelse(length(model2$smooth) > 0, sum(sapply(model2$smooth, 
-            FUN = function(x) {
-                x$null.space.dim
-            }, USE.NAMES = FALSE)), 0)
-        warning(sprintf("\nCompareML is not implemented for smoothing parameter estimation method %s. AIC scores are used for model comparison. Consider running the model with REML, fREML, or ML as method.\n-----\n", 
-            model1$method))
+    nsd = function(model){
+        if(length(model$smooth) > 0){
+            return(sapply(model$smooth, 
+                          FUN = function(x) {
+                              x$null.space.dim
+                          }, USE.NAMES = FALSE))
+        }else{
+            return(NA)
+        }
+    }
+    if (is.null(model1$AR1.rho)) {
+        rho1 = 0
+    } else {
+        rho1 = model1$AR1.rho
     }
     
+    if (is.null(model2$AR1.rho)) {
+        rho2 = 0
+    } else {
+        rho2 = model2$AR1.rho
+    }
+
+    # For method=ML:
+    if(type == "ML"){
+        ml1 <- model1$gcv.ubre[1]
+        ml2 <- model2$gcv.ubre[1]
+        ### OLD METHOD, SIMON SAYS NOT OK! ### edf1 <- sum(model1$edf) edf2 <- sum(model2$edf) NEW METHOD: ###
+        ndf1 <- length(model1$sp) + model1$nsdf + ifelse(length(model1$smooth) > 0, sum(nsd(model1)), 0)
+        ndf2 <- length(model2$sp) + model2$nsdf + ifelse(length(model2$smooth) > 0, sum(nsd(model2)), 0)
+
+        check1 <- sort(unlist(sapply(model1$smooth, 
+                        FUN = function(x) {
+                            if(x$null.space.dim == 0){
+                                return(x$label)
+                            }}, USE.NAMES = FALSE)))
+        check2 <- sort(unlist(sapply(model2$smooth, 
+                        FUN = function(x) {
+                            if(x$null.space.dim == 0){
+                                return(x$label)
+                            }}, USE.NAMES = FALSE)))
+        if(!all(check1 == check2)){
+            warning("It looks like the models may differ in their random effects structure.")
+        }
+        if((ndf1 != ndf2) & (rho1 != rho2)){
+            warning("Note that models differ in model terms and in AR1 (rho) value.")
+        }
+    }else if(type %in% c("REML", "fREML")){
+        # For method is (f)REML:
+        ml1 <- model1$gcv.ubre[1]
+        ml2 <- model2$gcv.ubre[1]
+        ndf1 <- length(model1$sp) 
+        ndf2 <- length(model2$sp)   
+        if((ndf1 != ndf2) & (rho1 != rho2)){
+            warning("Note that models differ in model terms and in AR1 (rho) value.")
+        }  
+    }else{
+        warning(sprintf("\nCompareML is not implemented for smoothing parameter estimation method %s.  log-likelihood scores (as provided by logLik.gam()) are used for model comparison. Consider running the model with REML, fREML, or ML as method.\n-----\n", 
+            model1$method))
+        ml1 <- mgcv::logLik.gam(model1)
+        ml2 <- mgcv::logLik.gam(model2)
+        ndf1 <- attr(ml1, "df")
+        ndf2 <- attr(ml2, "df")  
+        ml1 <- as.numeric(ml1)     
+        ml2 <- as.numeric(ml2)    
+        if((ndf1 != ndf2) & (rho1 != rho2)){
+            warning("Note that models differ in model terms and in AR1 (rho) value.")
+        }
+    }
+
+    # if (!model1$method %in% c("fREML", "REML", "ML")) {
+    #     type <- "AIC"
+    #     ml1 <- AIC(model1)
+    #     ml2 <- AIC(model2)  
+    #     ndf1 <- length(model1$sp) + model1$nsdf + ifelse(length(model1$smooth) > 0, sum(sapply(model1$smooth, 
+    #         FUN = function(x) {
+    #             x$null.space.dim
+    #         }, USE.NAMES = FALSE)), 0)
+    #     ndf2 <- length(model2$sp) + model2$nsdf + ifelse(length(model2$smooth) > 0, sum(sapply(model2$smooth, 
+    #         FUN = function(x) {
+    #             x$null.space.dim
+    #         }, USE.NAMES = FALSE)), 0)
+    #     warning(sprintf("\nCompareML is not implemented for smoothing parameter estimation method %s. AIC scores are used for model comparison. Consider running the model with REML, fREML, or ML as method.\n-----\n", 
+    #         model1$method))
+    # }
     
-    # pchisq(4, .5, lower.tail=F) # p < .1 pchisq(-4, .5, lower.tail=F) # p = 1 pchisq(4, -.5, lower.tail=F) #
-    # NaN
     
+    ### TEST:
+
     # Book keeping;
     info <- sprintf("%s: %s\n\n%s: %s\n", deparse(substitute(model1)), paste(deparse(model1$formula), collapse = "\n"), 
         deparse(substitute(model2)), paste(deparse(model2$formula), collapse = "\n"))
@@ -234,36 +301,21 @@ compareML <- function(model1, model2, signif.stars = TRUE, suggest.report = FALS
         cat("\n")
     }
     
-    if (type != "AIC") {
-        if (is.null(model1$AR1.rho)) {
-            rho1 = 0
-        } else {
-            rho1 = model1$AR1.rho
-        }
-        
-        if (is.null(model2$AR1.rho)) {
-            rho2 = 0
-        } else {
-            rho2 = model2$AR1.rho
-        }
-        # AIC message:
-        if (AIC(model1) == AIC(model2)) {
-            aicmessage <- sprintf("AIC difference: 0.\n\n")
-        } else {
-            aicmessage <- sprintf("AIC difference: %.2f, model %s has lower AIC.\n\n", AIC(model1) - AIC(model2), 
-                ifelse(AIC(model1) >= AIC(model2), deparse(substitute(model2)), deparse(substitute(model1))))
-        }
-        if (print.output) {
-            cat(aicmessage)
-        }
-        # if (rho1 != 0 | rho2 != 0) { # AIC is useless for models with rho warning(sprintf(' AIC might not be
-        # reliable, as an AR1 model is included (rho1 = %f, rho2 = %f). ', rho1, rho2)) }
-    }
-    
     if (abs(ml1 - ml2) <= 5) {
         warning(sprintf("Only small difference in %s...\n", type))
     }
-    
+
+    # AIC message:
+    if (AIC(model1) == AIC(model2)) {
+        aicmessage <- sprintf("AIC difference: 0.\n\n")
+    } else {
+        aicmessage <- sprintf("AIC difference: %.2f, model %s has lower AIC.\n\n", AIC(model1) - AIC(model2), 
+            ifelse(AIC(model1) >= AIC(model2), deparse(substitute(model2)), deparse(substitute(model1))))
+    }
+    if (print.output) {
+        cat(aicmessage)
+    }
+
     invisible(list(method = type, m1 = list(Model = model1$formula, Score = ml1, Df = ndf1), m2 = list(Model = model2$formula, 
         Score = ml2, Df = ndf2), table = out, advice = ifelse(is.null(advice), NA, advice), AIC = ifelse(is.null(aicmessage), 
         NA, aicmessage)))
@@ -576,7 +628,7 @@ plot_diff <- function(model, view, comp, cond = NULL,
 #' @param col Line color.
 #' @param add.color.legend Logical: whether or not to add a color legend. 
 #' Default is TRUE. If FALSE (omitted), one could use the function
-#' \code{\link{gradientLegend}} to add a legend manually at any position.
+#' \code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.
 #' @param se If less than or equal to zero then only the predicted surface is 
 #' plotted, but if greater than zero, then the predicted values plus 
 #' confidence intervals are plotted. 

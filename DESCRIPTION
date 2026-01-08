@@ -1,8 +1,8 @@
 Package: itsadug
-Version: 2.4.1
-Date: 2022-06-17
+Version: 2.5
+Date: 2025-12-22
 Title: Interpreting Time Series and Autocorrelated Data Using GAMMs
-Authors@R: c( person("Jacolien", "van Rij", email="vanrij.jacolien@gmail.com", role = c("aut", "cre")),
+Authors@R: c( person("Jacolien", "van Rij", email="j.c.van.rij@rug.nl", role = c("aut", "cre")),
     person("Martijn","Wieling", role = "aut"), 
     person("R. Harald","Baayen", role = "aut"), 
     person("Hedderik", "van Rijn", role = "ctb"))
@@ -10,7 +10,7 @@ Author: Jacolien van Rij [aut, cre],
   Martijn Wieling [aut],
   R. Harald Baayen [aut],
   Hedderik van Rijn [ctb]
-Maintainer: Jacolien van Rij <vanrij.jacolien@gmail.com>
+Maintainer: Jacolien van Rij <j.c.van.rij@rug.nl>
 Description: GAMM (Generalized Additive Mixed Modeling; Lin & Zhang, 1999)
     as implemented in the R package 'mgcv' (Wood, S.N., 2006; 2011) is a nonlinear
     regression analysis which is particularly useful for time course data such as
@@ -27,9 +27,9 @@ LazyData: true
 Depends: R (>= 4.0), mgcv (>= 1.8), plotfunctions (>= 1.4)
 VignetteBuilder: knitr
 Suggests: knitr, xtable, sp, data.table
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.3
 Encoding: UTF-8
 NeedsCompilation: no
-Packaged: 2022-06-17 14:55:33 UTC; jacolien
+Packaged: 2025-12-23 13:17:15 UTC; jacolien
 Repository: CRAN
-Date/Publication: 2022-06-17 15:40:02 UTC
+Date/Publication: 2026-01-08 00:20:02 UTC

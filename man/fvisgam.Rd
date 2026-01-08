@@ -26,11 +26,11 @@ fvisgam(
   transform = NULL,
   transform.view = NULL,
   hide.label = FALSE,
-  dec = NULL,
   show.diff = FALSE,
   col.diff = 1,
   alpha.diff = 0.5,
   f = 1.96,
+  dec = NULL,
   ...
 )
 }
@@ -66,7 +66,7 @@ can be provided for a custom color palette (see examples).}
 
 \item{add.color.legend}{Logical: whether or not to add a color legend. 
 Default is TRUE. If FALSE (omitted), one could use the function
-\code{\link{gradientLegend}} to add a legend manually at any position.}
+\code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.}
 
 \item{se}{If less than or equal to zero then only the predicted surface is 
 plotted, but if greater than zero, then 3 surfaces are plotted, one at the 
@@ -115,11 +115,6 @@ See examples below.}
 \item{hide.label}{Logical: whether or not to hide the label 
 (i.e., 'fitted values'). Default is FALSE.}
 
-\item{dec}{Numeric: number of decimals for rounding the color legend. 
-When NULL, no rounding (default). If -1, automatically determined.  
-Note: if value = -1, rounding will be applied also when 
-\code{zlim} is provided.}
-
 \item{show.diff}{Logical: whether or not to indicate the regions that 
 are significantly different from zero. Note that these regions are just 
 an indication and dependent on the value of \code{n.grid}. 
@@ -132,6 +127,10 @@ Defaults to FALSE.}
 \item{f}{Scaling factor to determine the CI from the se, for marking the 
 difference with 0. Only applies when \code{se} is smaller or equal to zero 
 and \code{show.diff} is set to TRUE.}
+
+\item{dec}{Number of significant digits for rounding the numbers of 
+\code{\link[plotfunctions]{gradientLegend}}, set to NULL (default) 
+for no rounding.}
 
 \item{...}{other options to pass on to persp, image or contour. In 
 particular ticktype='detailed' will add proper axes labeling to the plots.}

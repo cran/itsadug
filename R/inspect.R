@@ -78,7 +78,7 @@ dispersion = function(model) {
 #' @param contour.col sets the color of contours when using plot.
 #' @param add.color.legend Logical: whether or not to add a color legend. 
 #' Default is TRUE. If FALSE (omitted), one could use the function
-#' \code{\link{gradientLegend}} to add a legend manually at any position.
+#' \code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.
 #' @param se If less than or equal to zero then only the predicted surface is 
 #' plotted, but if greater than zero, then 3 surfaces are plotted, one at the 
 #' predicted values minus se standard errors, one at the predicted values and 
@@ -114,10 +114,6 @@ dispersion = function(model) {
 #' See examples below.
 #' @param hide.label Logical: whether or not to hide the label 
 #' (i.e., 'fitted values'). Default is FALSE.
-#' @param dec Numeric: number of decimals for rounding the color legend. 
-#' When NULL, no rounding (default). If -1, automatically determined.  
-#' Note: if value = -1, rounding will be applied also when 
-#' \code{zlim} is provided.
 #' @param show.diff Logical: whether or not to indicate the regions that 
 #' are significantly different from zero. Note that these regions are just 
 #' an indication and dependent on the value of \code{n.grid}. 
@@ -127,6 +123,9 @@ dispersion = function(model) {
 #' @param f Scaling factor to determine the CI from the se, for marking the 
 #' difference with 0. Only applies when \code{se} is smaller or equal to zero 
 #' and \code{show.diff} is set to TRUE. 
+#' @param dec Number of significant digits for rounding the numbers of 
+#' \code{\link[plotfunctions]{gradientLegend}}, set to NULL (default) 
+#' for no rounding. 
 #' @param ... other options to pass on to persp, image or contour. In 
 #' particular ticktype='detailed' will add proper axes labeling to the plots.
 #' @section Warning:
@@ -209,7 +208,7 @@ dispersion = function(model) {
 fvisgam <- function(x, view = NULL, cond = list(), n.grid = 30, too.far = 0, col = NA, color = "terrain", 
     contour.col = NULL, add.color.legend = TRUE, se = -1, sim.ci = FALSE, plot.type = "contour", xlim = NULL, 
     ylim = NULL, zlim = NULL, nCol = 50, rm.ranef = TRUE, print.summary = getOption("itsadug_print"), transform = NULL, 
-    transform.view = NULL, hide.label = FALSE, dec = NULL, show.diff = FALSE, col.diff = 1, alpha.diff = 0.5, f=1.96, 
+    transform.view = NULL, hide.label = FALSE, show.diff = FALSE, col.diff = 1, alpha.diff = 0.5, f=1.96, dec=NULL, 
     ...) {
     # check info me
     
@@ -347,24 +346,11 @@ fvisgam <- function(x, view = NULL, cond = list(), n.grid = 30, too.far = 0, col
         if (!is.null(zlim)) {
             if (length(zlim) != 2 || zlim[1] >= zlim[2]) 
                 stop("Something wrong with zlim")
-            if (!is.null(dec)) {
-                if (dec == -1) {
-                  dec <- getDec(min(zlim, na.rm = TRUE))
-                }
-                zlim <- getRange(zlim, step = (0.1^dec), n.seg = 2)
-            }
             min.z <- zlim[1]
             max.z <- zlim[2]
         } else {
-            if (!is.null(dec)) {
-                if (dec == -1) {
-                  dec <- getDec(min(z.fit.toofar, na.rm = TRUE))
-                }
-                tmp <- getRange(range(z.fit.toofar, na.rm = TRUE), n.seg = 2, step = (0.1^dec))
-            } else {
-                tmp <- range(z.fit.toofar, na.rm = TRUE)
-            }
-            # min.z <- min(z.fit, na.rm = TRUE) max.z <- max(z.fit, na.rm = TRUE)
+            tmp <- range(z.fit.toofar, na.rm = TRUE)
+            tmp = range(pretty(range(z.fit.toofar, na.rm = TRUE)))
             min.z <- tmp[1]
             max.z <- tmp[2]
         }
@@ -1485,7 +1471,7 @@ plot_data <- function(model, view, split_by = NULL, cond = NULL, input = "data",
 #' @param main Changing the main title for the plot, see also title.
 #' @param xlab Changing the label for the x axis, 
 #' defaults to a description of x.
-#' @param ... other options to pass on to \code{\link{dotplot_error}}, 
+#' @param ... other options to pass on to \code{\link[plotfunctions]{dotplot_error}}, 
 #' see \code{\link[graphics]{par}}
 #' @section Warning:
 #' Use \code{parametricOnly} with care! When set to TRUE, all smooth 
@@ -2080,7 +2066,7 @@ plot_smooth <- function(x, view = NULL, cond = list(), plot_all = NULL, rm.ranef
 #' which function to use for plotting.
 #' @param add.color.legend Logical: whether or not to add a color legend. 
 #' Default is TRUE. If FALSE (omitted), one could use the function
-#' \code{\link{gradientLegend}} to add a legend manually at any position.
+#' \code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.
 #' @param size Size in inch of plot window.
 #' @param n.grid  The number of grid nodes in each direction used for 
 #' calculating the plotted surface. 
@@ -2293,7 +2279,7 @@ plot_topo <- function(model, view, el.pos = NULL, fun = "fvisgam", add.color.leg
 #' @param contour.col sets the color of contours when using plot.
 #' @param add.color.legend Logical: whether or not to add a color legend. 
 #' Default is TRUE. If FALSE (omitted), one could use the function
-#' \code{\link{gradientLegend}} to add a legend manually at any position.
+#' \code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.
 #' @param se If less than or equal to zero then only the predicted surface is 
 #' plotted, but if greater than zero, then 3 surfaces are plotted, one at the 
 #' predicted values minus se standard errors, one at the predicted values and 
@@ -2313,9 +2299,7 @@ plot_topo <- function(model, view, el.pos = NULL, fun = "fvisgam", add.color.leg
 #' Default set to the print info messages option 
 #' (see \code{\link{infoMessages}}).
 #' @param dec Numeric: number of decimals for rounding the color legend. 
-#' When NULL (default), no rounding. If -1 the values are automatically determined. 
-#' Note: if value = -1 (default), rounding will be applied also when 
-#' \code{zlim} is provided.
+#' When NULL (default), no rounding. 
 #' @param show.diff Logical: whether or not to indicate the regions that 
 #' are significantly different from zero. Note that these regions are just 
 #' an indication and dependent on the value of \code{n.grid}. 
@@ -2613,24 +2597,10 @@ pvisgam <- function(x, view = NULL, select = NULL, cond = list(), n.grid = 30, t
     if (!is.null(zlim)) {
         if (length(zlim) != 2 || zlim[1] >= zlim[2]) 
             stop("Something wrong with zlim")
-        if (!is.null(dec)) {
-            if (dec == -1) {
-                dec <- getDec(min(zlim))
-            }
-            zlim <- getRange(zlim, step = (0.1^dec), n.seg = 2)
-        }
         min.z <- zlim[1]
         max.z <- zlim[2]
     } else {
-        if (!is.null(dec)) {
-            if (dec == -1) {
-                dec <- getDec(min(fv$fit, na.rm = TRUE))
-            }
-            tmp <- getRange(range(fv$fit, na.rm = TRUE, n.seg = 2), step = (0.1^dec))
-        } else {
-            tmp <- range(fv$fit, na.rm = TRUE)
-        }
-        # min.z <- min(z.fit, na.rm = TRUE) max.z <- max(z.fit, na.rm = TRUE)
+        tmp = range(pretty(range(fv$fit, na.rm=T)))
         min.z <- tmp[1]
         max.z <- tmp[2]
     }

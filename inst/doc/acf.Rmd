@@ -1,5 +1,5 @@
 ---
-title: "Checking for and handling autocorrelation"
+title: "ACF: checking & handling autocorrelation"
 author: "Jacolien van Rij"
 date: "15 March 2016"
 output: rmarkdown::html_vignette
@@ -37,7 +37,7 @@ There are basically two methods to reduce autocorrelation, of which the first on
 2. Determine the value for the autocorrelation coefficient `rho`.
 
 ## Example
-<div class="example">
+
 Loading the data:
 
 ```{r}

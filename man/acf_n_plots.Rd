@@ -42,7 +42,7 @@ Default is the maximum for the longest time series.}
 \item{plot}{Logical: whether or not to produce plot. Default is TRUE.}
 
 \item{random}{Logical: determine randomly which \code{n} (aggregated) time 
-series are plotted, or use the \code{\link{quantile}} function to find a 
+series are plotted, or use the \code{\link[stats]{quantile}} function to find a 
 range of different time series to plot. Default is FALSE (not random).}
 
 \item{mfrow}{A vector of the form c(nr, nc). The figures will be drawn in 

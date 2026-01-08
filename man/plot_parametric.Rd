@@ -51,7 +51,7 @@ Default set to the print info messages option
 \item{xlab}{Changing the label for the x axis, 
 defaults to a description of x.}
 
-\item{...}{other options to pass on to \code{\link{dotplot_error}}, 
+\item{...}{other options to pass on to \code{\link[plotfunctions]{dotplot_error}}, 
 see \code{\link[graphics]{par}}}
 }
 \description{

@@ -33,7 +33,6 @@ Before summarizing the function, we would like to highlight different concepts
 
 
 ## Example
-<div class="example">
 Loading the data:
 
 ```{r}

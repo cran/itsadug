@@ -34,8 +34,8 @@ report[3,2]
 \seealso{
 Other Testing for significance: 
 \code{\link{compareML}()},
-\code{\link{plot_diff2}()},
 \code{\link{plot_diff}()},
+\code{\link{plot_diff2}()},
 \code{\link{wald_gam}()}
 }
 \author{

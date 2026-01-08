@@ -389,7 +389,7 @@ get_pca_predictions <- function(x, pca.term = NULL, weights = NULL, view = NULL,
 #' The value of \code{se} determines the size of the CI.
 #' @param add.color.legend Logical: whether or not to add a color legend. 
 #' Default is TRUE. If FALSE (omitted), one could use the function
-#' \code{\link{gradientLegend}} to add a legend manually at any position.
+#' \code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.
 #' @param se If less than or equal to zero then only the predicted surface 
 #' is plotted, but if greater than zero, then 3 surfaces are plotted, one at 
 #' the predicted values minus se standard errors, one at the predicted 

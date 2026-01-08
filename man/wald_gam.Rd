@@ -140,8 +140,8 @@ infoMessages('on')
 
 Other Testing for significance: 
 \code{\link{compareML}()},
-\code{\link{plot_diff2}()},
 \code{\link{plot_diff}()},
+\code{\link{plot_diff2}()},
 \code{\link{report_stats}()}
 }
 \author{

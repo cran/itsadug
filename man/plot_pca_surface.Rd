@@ -91,7 +91,7 @@ The value of \code{se} determines the size of the CI.}
 
 \item{add.color.legend}{Logical: whether or not to add a color legend. 
 Default is TRUE. If FALSE (omitted), one could use the function
-\code{\link{gradientLegend}} to add a legend manually at any position.}
+\code{\link[plotfunctions]{gradientLegend}} to add a legend manually at any position.}
 
 \item{plot.type}{one of 'contour' or 'persp' (default is 'contour').}
 
